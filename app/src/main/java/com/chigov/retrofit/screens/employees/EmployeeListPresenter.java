@@ -1,7 +1,5 @@
 package com.chigov.retrofit.screens.employees;
 
-import android.util.Log;
-
 import com.chigov.retrofit.api.ApiFactory;
 import com.chigov.retrofit.api.ApiService;
 import com.chigov.retrofit.pojo.EmployeeResponse;
@@ -15,12 +13,16 @@ import io.reactivex.schedulers.Schedulers;
 public class EmployeeListPresenter {
     private Disposable disposable;
     private CompositeDisposable compositeDisposable;
-    private EmployeeListActivity activity;
+
+    private EmployeeListView view;
+    public EmployeeListPresenter(EmployeeListView view) {
+        this.view = view;
+    }
 
     //constructor
-    public EmployeeListPresenter(EmployeeListActivity activity) {
-        this.activity = activity;
-    }
+    //public EmployeeListPresenter(EmployeeListActivity activity) {
+     //   this.activity = activity;
+    //}
 
     public EmployeeListPresenter() {
 
@@ -38,13 +40,13 @@ public class EmployeeListPresenter {
                 .subscribe(new Consumer<EmployeeResponse>(){
                     @Override
                     public void accept(EmployeeResponse employeeResponse) throws Exception {
-                        activity.showData(employeeResponse.getResponse());
+                        view.showData(employeeResponse.getResponse());
                     }
                 },new Consumer<Throwable>(){
                     @Override
                     public void accept(Throwable throwable) {
-
-                        Log.i("test",throwable.getMessage());
+                        view.showError();
+                        //Log.i("test",throwable.getMessage());
                     }
                 });
         compositeDisposable.add(disposable);
@@ -54,4 +56,5 @@ public class EmployeeListPresenter {
         compositeDisposable.dispose();
         }
     }
+
 }

@@ -2,6 +2,7 @@ package com.chigov.retrofit.screens.employees;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class EmployeeListActivity extends AppCompatActivity {
+public class EmployeeListActivity extends AppCompatActivity implements EmployeeListView{
     private RecyclerView recyclerViewEmployees;
     private EmployeeAdapter adapter;
     private EmployeeListPresenter presenter;
@@ -40,10 +41,17 @@ public class EmployeeListActivity extends AppCompatActivity {
         presenter.disposeDisposable();
         super.onDestroy();
     }
-    public void showData(List<Employee> employees){
-        adapter.setEmployees(employees);
 
+    @Override
+    public void showData(List<Employee> employees) {
+        adapter.setEmployees(employees);
     }
+
+    @Override
+    public void showError() {
+        Toast.makeText(this, "No internet", Toast.LENGTH_SHORT).show();
+    }
+
 }
 
 //    List<Employee> employees = new ArrayList<>();

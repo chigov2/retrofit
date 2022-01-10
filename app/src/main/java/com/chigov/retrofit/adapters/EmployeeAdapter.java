@@ -20,6 +20,17 @@ public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.Employ
         return employees;
     }
 
+    class EmployeeViewHolder extends RecyclerView.ViewHolder{
+        private TextView textViewName;
+        private TextView textViewLastName;
+        //constructor
+        public EmployeeViewHolder(@NonNull View itemView) {
+            super(itemView);
+            textViewName = itemView.findViewById(R.id.textViewName);
+            textViewLastName = itemView.findViewById(R.id.textViewLastName);
+        }
+    }
+
     public void setEmployees(List<Employee> employees) {
         this.employees = employees;
         notifyDataSetChanged();
@@ -37,7 +48,6 @@ public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.Employ
         Employee employee = employees.get(position);
         holder.textViewName.setText(employee.getfName());
         holder.textViewLastName.setText(employee.getlName());
-
     }
 
     @Override
@@ -45,14 +55,4 @@ public class EmployeeAdapter extends RecyclerView.Adapter<EmployeeAdapter.Employ
         return employees.size();
     }
 
-    class EmployeeViewHolder extends RecyclerView.ViewHolder{
-        private TextView textViewName;
-        private TextView textViewLastName;
-
-        public EmployeeViewHolder(@NonNull View itemView) {
-            super(itemView);
-            textViewName = itemView.findViewById(R.id.textViewName);
-            textViewLastName = itemView.findViewById(R.id.textViewLastName);
-        }
-    }
 }

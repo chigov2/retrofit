@@ -10,6 +10,7 @@ public class ApiFactory {
     private static Retrofit retrofit;
     private  static final String BASE_URL = "https://gitlab.65apps.com/65gb/static/raw/master/";
 
+    //constructor
     private ApiFactory() {
         retrofit = new Retrofit.Builder()
                 .addConverterFactory(GsonConverterFactory.create())
