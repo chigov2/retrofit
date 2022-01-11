@@ -1,0 +1,134 @@
+Дописать зависимости
+Класс Employee сделать таблицей в БД – пометить аннотацией
+@Entity(tableName = "employees")
+
+Также добавить
+@PrimaryKey(autoGenerate = true)
+
+private int id;
+Добавить геттер и сеттер на id
+Если данные хранить таким образом — room  не поймет каким образом хранить данные
+private List<Speciality> speciality = null; - комментируем — специальности добавим в конце
+Создаем package data  и в нем создаем БД(05:42)
+@Database(entities = {Employee.class}, version = 1, exportSchema = false)
+public abstract class AppDatabase {
+создаем экземпляр класса и проверку
+@Database(entities = {Employee.class}, version = 1, exportSchema = false)
+public abstract class AppDatabase extends RoomDatabase {
+    private static final String DB_NAME = "employees.db";
+    private static AppDatabase database;//экземпляр
+    private static Object LOCK = new Object();// для проверки
+    // и создаем геттер
+    public static AppDatabase getInstance(Context context) {
+        synchronized (LOCK) {
+            //делаем проверку
+            if (database == null) {
+                database = Room.databaseBuilder(context, AppDatabase.class, DB_NAME).build();
+            }
+            return database;
+        }
+    }
+Теперь надо сделать интерфейс Dao для работы с таблицей
+@Dao
+public interface EmployeeDao {
+    //первый объект -  это будет запрос к базе
+    @Query("SELECT * FROM employees")// employees - это название БД
+    LiveData<List<Employee>> getEmployees();
+    //вносить данные в базу
+    @Insert(onConflict = OnConflictStrategy.REPLACE)//для предотвращения падения
+    void insertEmployees(List<Employee> employees);//вставлять будем целым списком
+    //метод для удаления из базы
+    @Query("DELETE FROM employees")
+    void deleteAllEmployees();
+И в БД создаем метод, который будет возвращать объект интерфейсного типа
+public abstract EmployeeDao employeeDao();
+база данных готова!!!
+В screens.employees создаем класс
+public class EmployeeViewModel extends AndroidViewModel
+переопределить конструктор и добавить ссылку на БД private AppDatabase db;
+и в конструкторе присвоить ей значение
+db = AppDatabase.getInstance(application);
+Создать объекты, на которые будет подписан view
+private LiveData<List<Employee>> employees;
+и в конструкторе присвоить ему значение
+db = AppDatabase.getInstance(application);
+employees = db.employeeDao().getEmployees();
+и чтобы активность смогла на него подписаться  - создадим геттер
+теперь view может вызвать метод getEmployees, получить объект типа LiveData и подписаться на его изменения
+Нужен метод, который будет вставлять данные в базу
+public void insertEmployees(List<Employee> employees)
+Вставляться данные будут в другом программном потоке — создаем класс
+private static class InsertEmployeeTask extends AsyncTask<List<Employee>,Void,Void>{
+    @Override
+    protected Void doInBackground(List<Employee>... lists) {
+        if (lists != null && lists.length > 0){
+            db.employeeDao().insertEmployees(lists[0]);
+        }
+        return null;
+    }
+}
+затем
+public void insertEmployees(List<Employee> employees){
+    new InsertEmployeeTask().execute(employees);
+}
+//удаление данных из базы
+public void deleteAllEmployees(){
+    new DeleteAllEmployeesTask().execute();
+}
+private static class DeleteAllEmployeesTask extends AsyncTask<Void,Void,Void>{
+    @Override
+    protected Void doInBackground(Void... voids) {
+        db.employeeDao().deleteAllEmployees();
+        return null;
+    }
+}
+Далее нужен метод, который будет загружать данные из Интернета
+берем его из EmployeeListPresenter (в основном loadData, void disposeDisposable()
+  не нужен)
+
+Вместо этого переопределяем метод
+protected void onCleared() {
+    compositeDisposable.dispose();
+    super.onCleared();
+}
+В loadData после получения списка сотрудников из интернета надо добавить их в БД, но перед этим удалить всё что там было
+public void accept(EmployeeResponse employeeResponse) throws Exception {
+    deleteAllEmployees();
+    insertEmployees(employeeResponse.getEmployeesFromInternet());
+}
+Теперь идем в public class EmployeeListActivity extends AppCompatActivity implements EmployeeListView
+ — больше не нужно реализовывать интерфейс  implements EmployeeListView
+и ссылка private EmployeeListPresenter presenter; не нужна
+удаляем void onDestroy(), void showData void, showError()
+Добавляем private EmployeeViewModel viewModel;
+Значение добавить viewModel = ViewModelProviders.of(this).get(EmployeeViewModel.class);
+Теперь надо подписаться на изменение в БД
+viewModel = ViewModelProviders.of(this).get(EmployeeViewModel.class);
+viewModel.getEmployees().observe(this, new Observer<List<Employee>>() {
+    @Override
+    public void onChanged(List<Employee> employees) {
+        adapter.setEmployees(employees);
+    }
+});
+viewModel.loadData();
+Подписались на изменения — можем загружать данные viewModel.loadData();
+Теперь хочу отслеживать ошибки, которые происходят при загрузке данных из интернета
+EmployeeViewModel.java — можем создать объект LiveData  с ошибками, на который можем подписаться
+private LiveData<Throwable> errors; и создадим геттер на него, чтобы можно было подписаться и присвоим ему значение в конструкторе. LiveData – абстрактный класс — нельзя писать new LiveData, поэтому mutableLiveData
+errors.setValue(throwable); нет доступа к setValue
+меняем private MutableLiveData<Throwable> errors;
+Идем в EmployeeListActivity.java и подписываемся на ошибки
+viewModel.getErrors().observe(this, new Observer<Throwable>() {
+    @Override
+    public void onChanged(Throwable throwable) {
+        if (throwable != null){
+        Toast.makeText(EmployeeListActivity.this, "No Internet database access", Toast.LENGTH_SHORT).show();
+        viewModel.clearErrors();
+        }
+    }
+Важно!!!
+
+
+
+
+
