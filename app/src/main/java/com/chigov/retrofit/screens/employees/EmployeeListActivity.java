@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,10 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class EmployeeListActivity extends AppCompatActivity implements EmployeeListView{
+public class EmployeeListActivity extends AppCompatActivity{
     private RecyclerView recyclerViewEmployees;
     private EmployeeAdapter adapter;
-    private EmployeeListPresenter presenter;
+    private EmployeeViewModel viewModel;
 
 
     @SuppressLint("CheckResult")
@@ -27,40 +29,28 @@ public class EmployeeListActivity extends AppCompatActivity implements EmployeeL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        presenter = new EmployeeListPresenter(this);
         recyclerViewEmployees = findViewById(R.id.recyclerViewEmployees);
         adapter = new EmployeeAdapter();
         adapter.setEmployees(new ArrayList<>());
         recyclerViewEmployees.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewEmployees.setAdapter(adapter);
-        presenter.loadData();
-    }
-
-    @Override
-    protected void onDestroy() {
-        presenter.disposeDisposable();
-        super.onDestroy();
-    }
-
-    @Override
-    public void showData(List<Employee> employees) {
-        adapter.setEmployees(employees);
-    }
-
-    @Override
-    public void showError() {
-        Toast.makeText(this, "No internet", Toast.LENGTH_SHORT).show();
+        viewModel = ViewModelProviders.of(this).get(EmployeeViewModel.class);
+        viewModel.getEmployees().observe(this, new Observer<List<Employee>>() {
+            @Override
+            public void onChanged(List<Employee> employees) {
+                adapter.setEmployees(employees);
+            }
+        });
+        viewModel.getErrors().observe(this, new Observer<Throwable>() {
+            @Override
+            public void onChanged(Throwable throwable) {
+                if (throwable != null){
+                Toast.makeText(EmployeeListActivity.this, "No Internet database access", Toast.LENGTH_SHORT).show();
+                viewModel.clearErrors();
+                }
+            }
+        });
+        viewModel.loadData();
     }
 
 }
-
-//    List<Employee> employees = new ArrayList<>();
-//    Employee employee1 = new Employee();
-//    Employee employee2 = new Employee();
-//        employee1.setfName("Max");
-//                employee2.setfName("Ivan");
-//                employee1.setlName("Ivanov");
-//                employee2.setlName("Petrov");
-//                employees.add(employee1);
-//                employees.add(employee2);
-//                adapter.setEmployees(employees);
