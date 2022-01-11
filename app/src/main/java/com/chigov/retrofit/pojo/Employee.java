@@ -2,12 +2,16 @@ package com.chigov.retrofit.pojo;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 
+import com.chigov.retrofit.converters.Converter;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 @Entity(tableName = "employees")
-//@TypeConverters(value = Converter.class)
+@TypeConverters(value = Converter.class)
 public class Employee {
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -23,12 +27,13 @@ public class Employee {
     @SerializedName("avatr_url")
     @Expose
     private String avatrUrl;
-//    @SerializedName("speciality")
-//    @Expose
-//    private List<Speciality> speciality = null;
+    @SerializedName("specialty")
+    @Expose
+    private List<Speciality> specialty = null;
+
     public int getId() {
-    return id;
-}
+        return id;
+    }
 
     public void setId(int id) {
         this.id = id;
@@ -49,20 +54,28 @@ public class Employee {
     public void setLName(String lName) {
         this.lName = lName;
     }
+
     public String getBirthday() {
-        return birthday;}
+        return birthday;
+    }
+
     public void setBirthday(String birthday) {
-        this.birthday = birthday;}
+        this.birthday = birthday;
+    }
+
     public String getAvatrUrl() {
         return avatrUrl;
     }
+
     public void setAvatrUrl(String avatrUrl) {
         this.avatrUrl = avatrUrl;
     }
-//    public List<Speciality> getSpeciality() {
-//        return speciality;
-//    }
-//    public void setSpecialty(List<Speciality> speciality) {
-//        this.speciality = speciality;
-//    }
+
+    public List<Speciality> getSpecialty() {
+        return specialty;
+    }
+
+    public void setSpecialty(List<Speciality> specialty) {
+        this.specialty = specialty;
+    }
 }
