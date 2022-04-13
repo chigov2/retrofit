@@ -6,15 +6,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp">
+    android:layout_margin="12dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp">
 
         <TextView
             android:id="@+id/textViewLabelName"
-            android:layout_width="wrap_content"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="@string/name"
             app:layout_constraintStart_toStartOf="parent"
@@ -29,7 +30,7 @@
 
         <TextView
             android:id="@+id/textViewLabelLastName"
-            android:layout_width="wrap_content"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:text="@string/last_name"
             app:layout_constraintStart_toStartOf="parent"
