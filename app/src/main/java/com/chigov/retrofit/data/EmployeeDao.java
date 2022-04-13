@@ -11,7 +11,7 @@ import com.chigov.retrofit.pojo.Employee;
 import java.util.List;
 
 @Dao
-public interface EmployeeDao {
+public interface  EmployeeDao {
     //первый объект -  это будет запрос к базе
     @Query("SELECT * FROM employees")// employees - это название БД
     LiveData<List<Employee>> getEmployees();
